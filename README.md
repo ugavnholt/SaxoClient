@@ -5,10 +5,13 @@ Implementation of the Saxo Bank OpenApi in dotnet core
 
 # Using SaxoClient with Dependency Injection and ASP.NET Standard 2.1
 
-The SaxoClient offers first-class support for Dependency Injection, and implements the (HttpClientFactory
-pattern)[https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests],
-that offer better resource management, and solves a number of problems with the better known (HttpClient)[https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/].
-Additionally adding (automatic transient-fault handling)[https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly] is easy by using the (Polly library)[https://github.com/App-vNext/Polly].
+The SaxoClient offers first-class support for Dependency Injection, and implements the [HttpClientFactory
+pattern](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests),
+that offer better resource management, and solves a 
+[number of problems with the better known HttpClient](https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/).
+Additionally adding 
+[automatic transient-fault handling](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly) is easy by using the 
+[Polly library](https://github.com/App-vNext/Polly).
 
 ## Adding the IStockTradeProvider interface to Dependency injection:
 
