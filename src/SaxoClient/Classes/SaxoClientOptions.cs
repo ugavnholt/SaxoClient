@@ -34,7 +34,7 @@ namespace Saxo.Classes
         /// oauth: authorization_url = AuthenticationUrl + "/authorize"
         /// oauth: token_url = AuthenticationUrl + "/token"
         /// </summary>
-        public string AuthenticationUrl { get; set; } = "https://sim.logonvalidation.net/";
+        public string AuthenticationUrl { get; set; } = "https://sim.logonvalidation.net";
 
         /// <summary>
         /// The Application key identifying your application.
@@ -54,6 +54,14 @@ namespace Saxo.Classes
         /// </summary>
         public string OpenApiBaseUrl { get; set; } = "https://gateway.saxobank.com/sim/openapi/";
 
+        /// <summary>
+        /// Type of authentication used
+        /// </summary>
         public AuthenticationType AuthenticationType { get; set; } = AuthenticationType.PKCE;
+
+        /// <summary>
+        /// The redirect uri, that is used for oAuth
+        /// </summary>
+        public string RedirectUri { get; set; } = "http://localhost/saxoclient";
     }
 }

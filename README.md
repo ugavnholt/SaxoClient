@@ -10,13 +10,13 @@ pattern)[https://docs.microsoft.com/en-us/dotnet/architecture/microservices/impl
 that offer better resource management, and solves a number of problems with the better known (HttpClient)[https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/].
 Additionally adding (automatic transient-fault handling)[https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly] is easy by using the (Polly library)[https://github.com/App-vNext/Polly].
 
-## Adding the IStockTradeProvider interface to Dependency injection:
+## Adding the IExchangeProvider interface to Dependency injection:
 
 ```c#
 // ConfigureServices()  - Startup.cs
 
 // Add the HttpClientFactory for the SaxoClient HttpClient, with Polly fault handling
-services.AddHttpClient<SaxoClient>()
+services.AddHttpClient<IExchangeProvider, SaxoClient>()
         .SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
         .AddPolicyHandler(GetRetryPolicy());
 
@@ -28,20 +28,20 @@ services.Configure<SaxoClientOptions>(
 services.AddTranscient<IStockTradeProvider, SaxoClient>();
 ```
 
-## Initializing the IStockTradeProvider without Dependency Injection:
+## Initializing the IExchangeProvider without Dependency Injection:
 
 ```c#
 // main()
 
 using (var httpClient = new HttpClient()) // httpClient lifetime is handled by caller - client should be kept for duration of SaxoClient lifetime
 {
-    var saxoClient = new SaxoClient(
+    IExchangeProvider exchangeProvider = new SaxoClient(
         NullLogger<SaxoClient>.Instance,
         Options.Create(new SaxoClientOptions()),
         httpClient
     );
     
-    saxoClient....
+    exchangeProvider....
 }
 
 ```
