@@ -58,10 +58,5 @@ namespace Saxo.Classes
         /// Type of authentication used
         /// </summary>
         public AuthenticationType AuthenticationType { get; set; } = AuthenticationType.PKCE;
-
-        /// <summary>
-        /// The redirect uri, that is used for oAuth
-        /// </summary>
-        public string RedirectUri { get; set; } = "http://localhost/saxoclient";
     }
 }

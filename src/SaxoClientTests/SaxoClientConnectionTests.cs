@@ -37,7 +37,7 @@ namespace Saxo.Tests
         }
 
         [Fact]
-        public async Task CreateConnectDispose()
+        public void CreateConnectDispose()
         {
             using (var handler = new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false })
             using (var httpClient = new HttpClient(handler)) // httpClient lifetime is handled by caller - client should be kept for duration of SaxoClient lifetime
@@ -51,23 +51,45 @@ namespace Saxo.Tests
 
                 Assert.NotEmpty(config.AppKey);
 
-                var saxoClient = new SaxoClient(
+                using (var saxoClient = new SaxoClient(
                     _loggerFactory.CreateLogger<SaxoClient>(),
                     Options.Create(config),
-                    httpClient
-                );
-
-                try
+                    httpClient))
                 {
-                    await saxoClient.AuthenticateAsync();
-                }
-                catch(Exception ex)
-                {
-                    _logger.LogError(ex, "Exception authenticating client");
-                    throw;
-                }
 
-                _logger.LogInformation("SaxoClient API initialized");
+                }
+            }
+        }
+
+        [Fact]
+        public void BuildPKCEAuthUrl()
+        {
+            using (var handler = new HttpClientHandler { UseCookies = false, AllowAutoRedirect = false })
+            using (var httpClient = new HttpClient(handler)) // httpClient lifetime is handled by caller - client should be kept for duration of SaxoClient lifetime
+            {
+
+                var config = new SaxoClientOptions
+                {
+                    // Set the appkey to whatever value is stores in the secrets manager
+                    AppKey = _configuration["SaxoClient:AppKey"],
+                };
+
+                Assert.NotEmpty(config.AppKey);
+
+                using (var saxoClient = new SaxoClient(
+                    _loggerFactory.CreateLogger<SaxoClient>(),
+                    Options.Create(config),
+                    httpClient))
+                {
+                    var authUri = saxoClient.GetPKCEAuthUrl();
+                    _logger.LogInformation("Got the authentication Uri: {uri}", authUri);
+
+                    Assert.StartsWith(config.AuthenticationUrl, authUri);
+                    Assert.Contains(config.AppKey, authUri);
+                    Assert.Contains(saxoClient.CodeVerifier, authUri);
+                    Assert.Contains("S256", authUri);
+                    Assert.Contains(Uri.EscapeDataString(saxoClient.RedirectUrl), authUri);
+                }
             }
         }
     }
