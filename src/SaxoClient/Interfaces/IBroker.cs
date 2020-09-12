@@ -10,7 +10,7 @@ namespace Saxo.Interfaces
     /// Attempts to authenticate with the provider
     /// </summary>
     /// <returns></returns>
-    public interface IExchangeProvider
+    public interface IBroker
     {
         Task AuthenticateAsync(CancellationToken ct = default);
     }

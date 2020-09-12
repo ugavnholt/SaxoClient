@@ -21,15 +21,25 @@ namespace ConsoleClient
         private static SaxoClient _saxoClient = null;
         private static HttpClientHandler _handler = null;
         private static HttpClient _httpClient = null;
-        private static CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly static CancellationTokenSource _cts = new CancellationTokenSource();
         
 
         static void Main(string[] args)
         {
+            _ = args;
             try
             {
                 Init();
                 _logger.LogInformation("initialization complete");
+
+                foreach (var tz in TimeZoneInfo.GetSystemTimeZones())
+                {
+                    _logger.LogInformation("'{id}' '{name}' '{caption}' ({baseOffset})",
+                        tz.Id,
+                        tz.StandardName,
+                        tz.DisplayName,
+                        tz.BaseUtcOffset);
+                }
 
                 var getTokenTask = _saxoClient.GetPKCEApiToken(_cts.Token);
                 
@@ -43,6 +53,13 @@ namespace ConsoleClient
                     _saxoClient.ApiToken.ExpiresIn,
                     _saxoClient.ApiToken.RefreshToken,
                     _saxoClient.ApiToken.RefreshTokenExpiresIn);
+
+                // Next things to do: get instrument info: https://gateway.saxobank.com/sim/openapi/ref/v1/instruments?AssetTypes=Stock
+
+                // Get prices for a list of instruments: https://gateway.saxobank.com/sim/openapi/trade/v1/infoprices/list?AccountKey=iX5VtUtBMBQDzOl1Z5px1Q==&Uics=2047,1311,2046,17749,16&AssetType=FxSpot&Amount=100000&FieldGroups=DisplayAndFormat,Quote
+
+
+
                 Console.ReadLine();
             }
             catch(Exception ex)
@@ -65,7 +82,7 @@ namespace ConsoleClient
 
             _configuration = builder.Build();
 
-            var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
+            var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole(options => {  options.DisableColors = false; options.IncludeScopes = false; }).SetMinimumLevel(LogLevel.Debug));
             _logger = loggerFactory.CreateLogger<Program>();
 
             _saxoConfig = new SaxoClientOptions

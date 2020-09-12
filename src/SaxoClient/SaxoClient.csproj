@@ -18,4 +18,8 @@
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Broker.Abstractions\Broker.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

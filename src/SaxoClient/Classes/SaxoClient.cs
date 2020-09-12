@@ -22,7 +22,7 @@ using System.IO;
 
 namespace Saxo.Classes
 {
-    public sealed class SaxoClient : IDisposable, IExchangeProvider
+    public sealed class SaxoClient : IDisposable, IBroker
     {
         #region Statics
         public static readonly JsonSerializerOptions DefaultSerializerOptions;
@@ -41,15 +41,31 @@ namespace Saxo.Classes
         private static ILogger<SaxoClient> _logger = null;
         private readonly SaxoClientOptions _options;
         private readonly HttpClient _httpClient = null;
-        private static RandomStringBuilder _randomService = new RandomStringBuilder();
+        private readonly static RandomStringBuilder _randomService = new RandomStringBuilder();
         private string _codeVerifier;
-        private SaxoClientState _state = SaxoClientState.Initialized; 
+        private SaxoClientState _state = SaxoClientState.Initialized;
         private ApiToken _apiToken;
         private HttpListener _httpListener = null;
         private string _redirectUrl = null;
 
+        /// <summary>
+        /// State of the client
+        /// </summary>
+        public SaxoClientState State { get => _state; }
+
+        /// <summary>
+        /// The ApiToken of the client
+        /// </summary>
         public ApiToken ApiToken { get => _apiToken; }
+
+        /// <summary>
+        /// Computed redirect url
+        /// </summary>
         public string RedirectUrl { get => _redirectUrl; }
+
+        /// <summary>
+        /// The verification code
+        /// </summary>
         public string CodeVerifier { get => _codeVerifier; }
 
         /// ///////////////////////////////////////////////////////////////////////////////
@@ -187,11 +203,9 @@ namespace Saxo.Classes
 
                     if (!string.IsNullOrWhiteSpace(authCode))
                     {
-                        using (var writer = new StreamWriter(httpContext.Response.OutputStream))
-                        {
-                            await writer.WriteLineAsync("AuthCode received by App. Please close the browser.").ConfigureAwait(false);
-                            writer.Close();
-                        }
+                        using var writer = new StreamWriter(httpContext.Response.OutputStream);
+                        await writer.WriteLineAsync("AuthCode received by App. Please close the browser.").ConfigureAwait(false);
+                        writer.Close();
                         break;
                     }
                     else
@@ -282,10 +296,11 @@ namespace Saxo.Classes
 
         private HttpRequestMessage BuildPKCEGetTokenRefreshRequest()
         {
-            var request = new HttpRequestMessage();
-            request.Method = HttpMethod.Post;
-
-            request.RequestUri = new Uri(string.Format("{0}/token", _options.AuthenticationUrl));
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(string.Format("{0}/token", _options.AuthenticationUrl))
+            };
             var fields = new Dictionary<string, string>
             {
                 { "grant_type", "refresh_token" },
@@ -298,10 +313,11 @@ namespace Saxo.Classes
 
         private HttpRequestMessage BuildPKCEGetTokenRequest(string authCode)
         {
-            var request = new HttpRequestMessage();
-            request.Method = HttpMethod.Post;
-
-            request.RequestUri = new Uri(string.Format("{0}/token", _options.AuthenticationUrl));
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(string.Format("{0}/token", _options.AuthenticationUrl))
+            };
             var fields = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
@@ -340,12 +356,10 @@ namespace Saxo.Classes
         /// <returns></returns>
         private static string GetPKCECodeChallenge(string codeVerifier)
         {
-            using (var sha256 = SHA256.Create())
-            {
-                var bytes = Encoding.ASCII.GetBytes(codeVerifier);
-                var challengeBytes = sha256.ComputeHash(bytes);
-                return Base64UrlEncoder.Encode(challengeBytes);
-            }
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.ASCII.GetBytes(codeVerifier);
+            var challengeBytes = sha256.ComputeHash(bytes);
+            return Base64UrlEncoder.Encode(challengeBytes);
         }
 
         public void Dispose()
