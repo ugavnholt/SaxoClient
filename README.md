@@ -12,7 +12,7 @@ To prepare the project login to [Saxos developer portal](https://developer.saxob
 Go to apps, and create an app for the project:
 * Name - any name
 * Description - any description
-* Redirect URLs - something that starts with http://localhost/xxx, for instance http://localhost/saxoconsoleclient
+* Redirect URLs - something that starts with http://localhost/xxx, for example http://localhost/saxoconsoleclient
 * Grant type - PKCE
 
 When the application have been registered, save the App Key, and redirect url.
