@@ -57,7 +57,7 @@ Additionally adding
 // ConfigureServices()  - Startup.cs
 
 // Add the HttpClientFactory for the SaxoClient HttpClient, with Polly fault handling
-services.AddHttpClient<IExchangeProvider, SaxoClient>()
+services.AddHttpClient<IBroker, SaxoClient>()
         .SetHandlerLifetime(TimeSpan.FromMinutes(5))  //Set lifetime to five minutes
         .AddPolicyHandler(GetRetryPolicy());
 
